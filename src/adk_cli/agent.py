@@ -104,6 +104,7 @@ from .tools import (
     complete_task,
 )
 from .callbacks import FULL_CALLBACKS, TOOL_AGENT_CALLBACKS
+from .llmmodel import get_executor_model, get_coordinator_model
 
 
 # ============================================================================
@@ -131,10 +132,8 @@ def create_time_calc_agent() -> LlmAgent:
         # 名称：用于日志和调试
         name="time_calc_agent",
 
-        # 模型：选择合适的模型
-        # gemini-2.0-flash: 快速、便宜
-        # gemini-2.5-pro: 更强，适合复杂任务
-        model="gemini-2.0-flash",
+        # 模型：通过环境变量配置
+        model=get_executor_model(),
 
         # ★ 关键：描述决定协调器何时委托
         # 协调器 LLM 会读取这个来决定路由
@@ -180,7 +179,7 @@ def create_memory_agent() -> LlmAgent:
     """
     return LlmAgent(
         name="memory_agent",
-        model="gemini-2.0-flash",
+        model=get_executor_model(),
         # ★ 协调器看到这个描述会把记忆相关任务委托过来
         description="Manages stored facts, preferences, and user memory.",
         instruction="""
@@ -210,7 +209,7 @@ def create_task_agent() -> LlmAgent:
     """
     return LlmAgent(
         name="task_agent",
-        model="gemini-2.0-flash",
+        model=get_executor_model(),
         description="Manages user tasks and to-do lists.",
         instruction="""
         You are a task management assistant.
@@ -238,7 +237,7 @@ def create_analysis_agent() -> LlmAgent:
     """
     return LlmAgent(
         name="analysis_agent",
-        model="gemini-2.0-flash",
+        model=get_executor_model(),
         description="Provides weather information and text analysis.",
         instruction="""
         You handle weather queries and text analysis.
@@ -270,8 +269,8 @@ root_agent = LlmAgent(
     name="adk_assistant",
 
     # 协调器通常使用更强的模型
-    # 因为需要理解意图、做决策
-    model="gemini-2.0-flash",
+    # 通过环境变量配置，默认使用 glm-4-flash
+    model=get_coordinator_model(),
 
     # 协调器自己的描述（用于更高层级的协调）
     description="A multi-capable assistant orchestrating specialized agents.",

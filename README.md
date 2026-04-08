@@ -26,23 +26,26 @@ pip install -r requirements.txt
 
 # 配置 API Key
 cp .env.example .env
-# 编辑 .env，添加 GOOGLE_API_KEY=your-key
+# 编辑 .env，根据使用的模型类型配置相应的 API Key
+# 选项 1: Gemini - 设置 GOOGLE_API_KEY=your-key
+# 选项 2: OpenAI 兼容 API - 设置 OPENAI_API_KEY=your-key
+# 选项 3: 其他模型 - 参考相应的环境变量配置
 ```
 
 ### 2. 运行
 
 ```bash
 # 查看帮助
-adk-cli --help
+python -m src.adk_cli.cli --help
 
 # 交互式聊天（自动持久化）
-adk-cli chat
+python -m src.adk_cli.cli chat
 
 # 单次查询
-adk-cli ask "What time is it?"
+python -m src.adk_cli.cli ask "What time is it?"
 
 # 查看架构
-adk-cli info
+python -m src.adk_cli.cli info
 ```
 
 ## 会话持久化
@@ -51,15 +54,15 @@ ADK 内置 SQLite 持久化，会话数据保存在 `~/.adk_cli/data/sessions.db
 
 ```bash
 # 开始聊天（默认持久化）
-adk-cli chat
+python -m src.adk_cli.cli chat
 # Session saved: session_abc123
-# Resume with: adk-cli resume session_abc123
+# Resume with: python -m src.adk_cli.cli resume session_abc123
 
 # 查看所有会话
-adk-cli list-sessions
+python -m src.adk_cli.cli list-sessions
 
 # 恢复历史会话
-adk-cli resume session_abc123
+python -m src.adk_cli.cli resume session_abc123
 ```
 
 持久化内容包括：
@@ -73,10 +76,10 @@ ADK 内置完整的 OTel 支持：
 
 ```bash
 # 启用 tracing（输出到控制台）
-adk-cli --trace --console-trace chat
+python -m src.adk_cli.cli --trace --console-trace chat
 
 # 发送到 OTLP Collector
-adk-cli --trace --otlp-endpoint http://localhost:4318 chat
+python -m src.adk_cli.cli --trace --otlp-endpoint http://localhost:4318 chat
 ```
 
 ### 本地 Jaeger 集成
@@ -88,7 +91,7 @@ docker run -d --name jaeger \
   jaegertracing/all-in-one:latest
 
 # 启用 tracing
-adk-cli --trace --otlp-endpoint http://localhost:4318 chat
+python -m src.adk_cli.cli --trace --otlp-endpoint http://localhost:4318 chat
 
 # 查看 traces: http://localhost:16686
 ```
@@ -118,6 +121,39 @@ root_agent (adk_assistant) ─── 协调器
 ├── task_agent         ─── 任务管理
 └── analysis_agent     ─── 天气/文本分析
 ```
+
+### 模型配置
+
+Agent 支持多种模型配置，包括 Gemini 和 OpenAI 兼容 API：
+
+```python
+# 使用 Gemini 模型
+agent = LlmAgent(
+    name="agent",
+    model="gemini-2.0-flash",  # Gemini 模型
+    tools=[...]
+)
+
+# 使用 OpenAI 兼容 API
+agent = LlmAgent(
+    name="agent",
+    model="openai/gpt-3.5-turbo",  # OpenAI 模型
+    tools=[...]
+)
+```
+
+### 环境变量配置
+
+根据选择的模型类型，需要在 `.env` 文件中配置相应的环境变量：
+
+| 模型类型 | 环境变量 | 示例值 |
+|---------|---------|-------|
+| Gemini | GOOGLE_API_KEY | your-gemini-api-key |
+| OpenAI | OPENAI_API_KEY | your-openai-api-key |
+| OpenAI (自定义端点) | OPENAI_BASE_URL | https://api.openai.com/v1 |
+| Anthropic | ANTHROPIC_API_KEY | your-anthropic-api-key |
+| Azure | AZURE_OPENAI_API_KEY | your-azure-api-key |
+| Azure | AZURE_OPENAI_ENDPOINT | https://your-resource.openai.azure.com/ |
 
 ### 协调器/执行者模式
 

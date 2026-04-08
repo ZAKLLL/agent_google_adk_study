@@ -99,9 +99,11 @@ async def before_agent_callback(callback_context: CallbackContext) -> Optional[t
     CallbackContext 包含的属性：
     ----------------------------
     - agent_name: 当前 agent 名称
-    - invocation_context: 完整的调用上下文
+    - session: 会话对象，可直接访问 session.id
     - state: 可读写的状态字典
-    - _event_actions: 用于构建事件动作
+    - invocation_id: 调用 ID
+    - user_id: 用户 ID
+    - actions: 用于构建事件动作
 
     Args:
         callback_context: 包含 agent 上下文和状态访问
@@ -118,7 +120,7 @@ async def before_agent_callback(callback_context: CallbackContext) -> Optional[t
     callback_context.state["invocation_count"] = invocations + 1
 
     # 记录会话信息
-    session_id = callback_context.invocation_context.session.id
+    session_id = callback_context.session.id
     logger.info(f"[Callback] Session: {session_id}, Invocation #{invocations + 1}")
 
     # 返回 None 表示继续执行 agent

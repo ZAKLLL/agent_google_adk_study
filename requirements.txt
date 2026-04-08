@@ -2,6 +2,7 @@ google-adk>=1.0.0
 click>=8.1.0
 python-dotenv>=1.0.0
 aiosqlite>=0.21.0
+litellm>=1.75.5
 
 # OpenTelemetry (可选，用于 tracing)
 opentelemetry-api>=1.36.0

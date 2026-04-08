@@ -39,11 +39,12 @@ ADK 提供两种 Planner：
 ```python
 from google.adk.planners import PlanReActPlanner, BuiltInPlanner
 from google.genai import types
+from .llmmodel import get_react_model, get_thinking_model
 
 # 方式 1: PlanReActPlanner (所有模型适用)
 agent = LlmAgent(
     name="react_agent",
-    model="gemini-2.0-flash",
+    model=get_react_model(),  # 从环境变量读取
     tools=[...],
     planner=PlanReActPlanner(),  # 启用 ReAct
 )
@@ -51,7 +52,7 @@ agent = LlmAgent(
 # 方式 2: BuiltInPlanner (仅 Gemini 2.5+ 支持)
 agent = LlmAgent(
     name="thinking_agent",
-    model="gemini-2.5-pro",  # 必须是支持 thinking 的模型
+    model=get_thinking_model(),  # 需要支持 thinking 的模型
     tools=[...],
     planner=BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
@@ -92,6 +93,7 @@ from .tools import (
     fetch_weather_mock,
     analyze_text,
 )
+from .llmmodel import get_react_model, get_thinking_model
 
 
 # ============================================================================
@@ -102,7 +104,7 @@ from .tools import (
 
 react_agent = LlmAgent(
     name="react_assistant",
-    model="gemini-2.0-flash",
+    model=get_react_model(),
     description=(
         "A ReAct agent that plans, reasons, and acts step by step. "
         "Use this for complex multi-step tasks requiring planning."
@@ -150,7 +152,7 @@ react_agent = LlmAgent(
 
 thinking_agent = LlmAgent(
     name="thinking_assistant",
-    model="gemini-2.5-flash",  # 需要 Gemini 2.5+
+    model=get_thinking_model(),  # 需要 Gemini 2.5+ 或其他支持 thinking 的模型
     description=(
         "A thinking agent that uses Gemini's built-in reasoning. "
         "Shows the thought process before responding."
